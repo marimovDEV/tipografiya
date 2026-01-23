@@ -1077,7 +1077,7 @@ function SpecificationsStep({
       </div>
 
     </div>
-    </div >
+
   )
 }
 
