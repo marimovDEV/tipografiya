@@ -42,7 +42,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-APPEND_SLASH = False
+APPEND_SLASH = True
 
 CORS_ALLOW_ALL_ORIGINS = True # For MVP. In prod, set CORS_ALLOWED_ORIGINS
 CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:3000,https://*.onrender.com').split(',')

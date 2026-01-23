@@ -75,6 +75,16 @@ export async function updateProductTemplate(id: string, data: Partial<ProductTem
     return response.json()
 }
 
+export async function deleteProductTemplate(id: string): Promise<void> {
+    const response = await fetchWithAuth(`${API_BASE}/product-templates/${id}/`, {
+        method: "DELETE",
+    })
+
+    if (!response.ok) {
+        throw new Error("Failed to delete product template")
+    }
+}
+
 export async function calculateMaterials(
     templateId: string,
     params: {
