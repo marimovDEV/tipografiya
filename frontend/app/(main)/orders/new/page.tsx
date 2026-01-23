@@ -967,8 +967,9 @@ function SpecificationsStep({
                 </div>
               </div>
             </div>
+          )}
 
-              {/* PDF Quote Button */}
+          {/* PDF Quote Button */}
           <div className="mt-4 flex justify-end">
             <button
               onClick={() => {
