@@ -26,7 +26,14 @@ export default function LoginPage() {
     setError(null)
 
     try {
-      const response = await fetch(`${API_URL}/api/login/`, {
+      // Ensure no double slashes and correct trailing slash
+      const baseUrl = API_URL?.replace(/\/$/, "") || ""
+      const endpoint = "/api/login/"
+      const fullUrl = `${baseUrl}${endpoint}`
+
+      console.log("Login attempt:", { fullUrl, username })
+
+      const response = await fetch(fullUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
@@ -41,13 +48,17 @@ export default function LoginPage() {
       }
 
       const data = await response.json()
-      if (!response.ok) throw new Error(data.error || "Login failed")
+
+      if (!response.ok) {
+        console.error("Login failed response:", data)
+        throw new Error(data.error || data.detail || `Login failed: ${response.status}`)
+      }
 
       login(data.token, data.user)
       localStorage.setItem("token", data.token)
       router.push("/dashboard")
     } catch (error: unknown) {
-      console.error("Login error:", error)
+      console.error("Login error details:", error)
       setError(error instanceof Error ? error.message : "Invalid username or password")
     } finally {
       setIsLoading(false)
