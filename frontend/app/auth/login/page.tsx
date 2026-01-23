@@ -85,7 +85,7 @@ export default function LoginPage() {
                       placeholder="admin"
                       required
                       value={username}
-                      onChange={(e) => setUsername(e.target.value.toLowerCase())}
+                      onChange={(e) => setUsername(e.target.value)}
                       autoComplete="username"
                     />
                   </div>

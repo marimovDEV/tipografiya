@@ -47,7 +47,7 @@ export default function RootLayout({
             {children}
           </RoleProvider>
         </HelpModeProvider>
-        <Analytics />
+        {/* <Analytics /> */}
       </body>
     </html>
   )
