@@ -1222,15 +1222,25 @@ class ReportsView(APIView):
         
         # Default to last 30 days if no dates provided
         now = timezone.now()
-        if start_date_str:
-            start_date = timezone.datetime.fromisoformat(start_date_str)
-        else:
-            start_date = now - timedelta(days=30)
-            
-        if end_date_str:
-            end_date = timezone.datetime.fromisoformat(end_date_str)
-        else:
-            end_date = now
+        try:
+            if start_date_str:
+                if start_date_str.endswith('Z'):
+                    start_date_str = start_date_str.replace('Z', '+00:00')
+                start_date = timezone.datetime.fromisoformat(start_date_str)
+            else:
+                start_date = now - timedelta(days=30)
+                
+            if end_date_str:
+                if end_date_str.endswith('Z'):
+                    end_date_str = end_date_str.replace('Z', '+00:00')
+                end_date = timezone.datetime.fromisoformat(end_date_str)
+            else:
+                end_date = now
+        except ValueError as e:
+            return Response(
+                {"error": f"Invalid date format: {str(e)}"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         # Filters
         order_filter = Q(created_at__range=(start_date, end_date))
