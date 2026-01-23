@@ -517,7 +517,7 @@ export default function ProductionPage() {
                               {/* Worker Controls */}
                               {step.status !== 'completed' && (
                                 currentRole === 'admin' ||
-                                (String(step.assigned_to) === String(user?.id) && currentRole !== 'admin')
+                                (String(step.assigned_to) === String(user?.id) && (currentRole as string) !== 'admin')
                               ) && (
                                   <div className="flex gap-1">
                                     {step.status === 'pending' && (

@@ -11,6 +11,16 @@ export type UserRole =
   | "finishing"
   | "qc"
   | "accountant"
+  | "sales_manager"
+  | "production_manager"
+  | "warehouse_manager"
+  | "operator_print"
+  | "operator_cutting"
+  | "operator_packing"
+  | "quality_controller"
+  | "finance_manager"
+  | "shop_floor_supervisor"
+  | "customer_service"
 
 interface RoleContextType {
   currentRole: UserRole

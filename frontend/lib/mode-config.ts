@@ -14,6 +14,17 @@ export type UserRole =
     | 'finishing'
     | 'qc'
     | 'client'
+    | 'accountant'
+    | 'sales_manager'
+    | 'production_manager'
+    | 'warehouse_manager'
+    | 'operator_print'
+    | 'operator_cutting'
+    | 'operator_packing'
+    | 'quality_controller'
+    | 'finance_manager'
+    | 'shop_floor_supervisor'
+    | 'customer_service'
 
 export interface ModeConfig {
     theme: 'dark' | 'light' | 'high-contrast' | 'minimal'
@@ -92,7 +103,18 @@ export function getUserMode(role: UserRole): UserMode {
         'cutter': 'worker',
         'finishing': 'worker',
         'qc': 'worker',
-        'client': 'client'
+        'client': 'client',
+        'accountant': 'manager',
+        'sales_manager': 'manager',
+        'production_manager': 'manager',
+        'warehouse_manager': 'manager',
+        'finance_manager': 'manager',
+        'shop_floor_supervisor': 'manager',
+        'customer_service': 'manager',
+        'operator_print': 'worker',
+        'operator_cutting': 'worker',
+        'operator_packing': 'worker',
+        'quality_controller': 'worker'
     }
 
     return roleToMode[role] || 'worker'

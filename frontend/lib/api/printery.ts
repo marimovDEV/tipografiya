@@ -13,7 +13,7 @@ import type {
     ProductionAnalytics,
     MaterialBatchEnhanced,
     WorkerTimeLog,
-} from "./types"
+} from "@/lib/types"
 
 const API_BASE = "/api"
 

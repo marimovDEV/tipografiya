@@ -104,7 +104,7 @@ export default function EnhancedWarehousePage() {
     }
 
     try {
-      await blockMaterialBatch(selectedBatch.id, blockReason)
+      await blockMaterialBatch(String(selectedBatch.id), blockReason)
       toast.success("Partiya bloklandi")
       setBlockDialogOpen(false)
       setBlockReason("")

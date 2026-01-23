@@ -19,7 +19,7 @@ export function ProductionGantt({ orders }: ProductionGanttProps) {
     const today = new Date()
     const timelineStart = addDays(today, -2) // Show 2 days past
     const timelineEnd = addDays(today, 14) // Show 2 weeks future
-    const days = []
+    const days: Date[] = []
 
     for (let d = timelineStart; d <= timelineEnd; d = addDays(d, 1)) {
         days.push(d)
@@ -97,8 +97,8 @@ export function ProductionGantt({ orders }: ProductionGanttProps) {
                                                 </TooltipProvider>
                                             )}
                                         </div>
-                                        <div className="text-xs text-muted-foreground truncate" title={order.client.full_name}>
-                                            {order.client.full_name}
+                                        <div className="text-xs text-muted-foreground truncate" title={order.client?.full_name}>
+                                            {order.client?.full_name || 'Noma\'lum'}
                                         </div>
                                         <div className="mt-1 flex gap-1 flex-wrap">
                                             <Badge variant="secondary" className="text-[10px] px-1 h-5">

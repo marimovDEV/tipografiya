@@ -6,7 +6,19 @@ export type UserRole =
   | "printer"
   | "finishing"
   | "qc"
+  | "qc"
+  | "qc"
   | "accountant"
+  | "sales_manager"
+  | "production_manager"
+  | "warehouse_manager"
+  | "operator_print"
+  | "operator_cutting"
+  | "operator_packing"
+  | "quality_controller"
+  | "finance_manager"
+  | "shop_floor_supervisor"
+  | "customer_service"
 
 export type OrderStatus = "pending" | "approved" | "in_production" | "ready" | "delivered" | "completed" | "canceled"
 
@@ -21,6 +33,7 @@ export interface User {
   email: string
   role: UserRole
   avatar_url?: string
+  mode?: 'admin' | 'manager' | 'worker' | 'client'
 }
 
 export interface Profile {
@@ -104,6 +117,7 @@ export interface Order {
   client_id: number | string
   order_number: string
   status: OrderStatus
+  priority?: "urgent" | "high" | "normal" | "low"
 
   // Specs
   box_type?: string
@@ -316,7 +330,10 @@ export interface MaterialBatchEnhanced extends MaterialBatch {
   block_reason?: string
   blocked_at?: string
   blocked_by?: string
+
   blocked_by_name?: string
+  days_until_expiry?: number
+  unit?: string
 }
 
 export interface ProductionStepEnhanced extends ProductionStepItem {

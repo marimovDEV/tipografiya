@@ -11,6 +11,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useRouter } from "next/navigation"
 import { Trash2, Plus } from "lucide-react"
 
+interface WorkOrderOperation {
+  id: string
+  operation_type: string
+  operation_name: string
+  material_quantity: number
+  sort_order: number
+  status: string
+}
+
 interface WorkOrderBuilderProps {
   orderId?: string
   initialData?: any
@@ -21,7 +30,7 @@ export function WorkOrderBuilder({ orderId, initialData, workorderId }: WorkOrde
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [operations, setOperations] = useState(initialData?.operations || [])
+  const [operations, setOperations] = useState<WorkOrderOperation[]>(initialData?.operations || [])
   const [formData, setFormData] = useState({
     order_id: orderId || initialData?.order_id || "",
     assigned_to: initialData?.assigned_to || "",
@@ -36,15 +45,15 @@ export function WorkOrderBuilder({ orderId, initialData, workorderId }: WorkOrde
 
     const newOperation = {
       id: `temp-${Date.now()}`,
-      operation_type: formData.get("operation_type"),
-      operation_name: formData.get("operation_name"),
+      operation_type: formData.get("operation_type") as string,
+      operation_name: formData.get("operation_name") as string,
       material_quantity: Number.parseFloat(formData.get("material_quantity") as string) || 0,
       sort_order: operations.length,
       status: "pending",
     }
 
     setOperations([...operations, newOperation])
-    ;(e.target as HTMLFormElement).reset()
+      ; (e.target as HTMLFormElement).reset()
   }
 
   function removeOperation(opId: string) {

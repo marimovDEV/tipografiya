@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, ArrowRight, Check, AlertTriangle, CheckCircle, XCircle, Loader2 } from "lucide-react"
+import { ArrowLeft, ArrowRight, Check, AlertTriangle, CheckCircle, XCircle, Loader2, AlertCircle, Clock, FileText } from "lucide-react"
 import { getProductTemplates, validateOrderMaterials, getCompatibleMaterials } from "@/lib/api/printery"
 import { fetchWithAuth, fetchDielinePreview, fetchNestingOptimization, fetchPricingCalculation } from "@/lib/api-client"
 import type { ProductTemplate, Client, MaterialValidationResult } from "@/lib/types"
@@ -507,7 +507,7 @@ function SpecificationsStep({
   const [materialType, setMaterialType] = useState<'craft' | 'white' | 'glossy'>('craft')
 
   // Phase 7: Nesting State
-  const [viewMode, setViewMode] = useState<'product' | 'sheet'>('product')
+  const [viewMode, setViewMode] = useState<'product' | 'sheet' | 'flat'>('product')
 
   // Auto-generate Dieline and Nesting
   useEffect(() => {
@@ -888,7 +888,7 @@ function SpecificationsStep({
               {nestingData.inventory_analysis.is_low_stock ? (
                 <AlertCircle className="w-5 h-5" />
               ) : (
-                <CheckCircle2 className="w-5 h-5" />
+                <CheckCircle className="w-5 h-5" />
               )}
               <div className="flex-1">
                 <div className="flex justify-between">
@@ -1073,7 +1073,6 @@ function SpecificationsStep({
             </button>
           </div>
         </div>
-          )}
       </div>
 
     </div>

@@ -11,6 +11,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useRouter } from "next/navigation"
 import { Trash2, Plus } from "lucide-react"
 
+interface QuoteItem {
+  id: string
+  description: string
+  quantity: number
+  unit_price: number
+  line_total: number
+  sort_order?: number
+  product_id?: string | null
+}
+
 interface QuoteBuilderProps {
   customerId?: string
   initialData?: any
@@ -21,14 +31,14 @@ export function QuoteBuilder({ customerId, initialData, quoteId }: QuoteBuilderP
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [items, setItems] = useState(initialData?.items || [])
+  const [items, setItems] = useState<QuoteItem[]>(initialData?.items || [])
   const [formData, setFormData] = useState({
     customer_id: customerId || initialData?.customer_id || "",
     valid_until: initialData?.valid_until || "",
     notes: initialData?.notes || "",
   })
 
-  const subtotal = items.reduce((sum, item) => sum + (Number.parseFloat(item.line_total) || 0), 0)
+  const subtotal = items.reduce((sum, item) => sum + (item.line_total || 0), 0)
   const tax = subtotal * 0.15
   const total = subtotal + tax
 
@@ -40,9 +50,9 @@ export function QuoteBuilder({ customerId, initialData, quoteId }: QuoteBuilderP
     const unitPrice = Number.parseFloat(formData.get("unit_price") as string) || 0
     const lineTotal = quantity * unitPrice
 
-    const newItem = {
+    const newItem: QuoteItem = {
       id: `temp-${Date.now()}`,
-      description: formData.get("description"),
+      description: formData.get("description") as string,
       quantity,
       unit_price: unitPrice,
       line_total: lineTotal,
@@ -50,7 +60,7 @@ export function QuoteBuilder({ customerId, initialData, quoteId }: QuoteBuilderP
     }
 
     setItems([...items, newItem])
-    ;(e.target as HTMLFormElement).reset()
+      ; (e.target as HTMLFormElement).reset()
   }
 
   function removeItem(itemId: string) {
