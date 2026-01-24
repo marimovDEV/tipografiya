@@ -116,12 +116,8 @@ export function NewMaterialDialog({ open, onOpenChange, onSuccess }: NewMaterial
 
             // 2. Validate Supplier if Initial Quantity is set
             const initQty = parseFloat(values.initial_quantity || "0")
-            if (initQty > 0 && !values.supplier_id) {
-                toast.error("Boshlang'ich qoldiq kiritilganda, yetkazib beruvchini tanlash shart!")
-                form.setError("supplier_id", { message: "Yetkazib beruvchini tanlang" })
-                setLoading(false)
-                return
-            }
+            // Removed mandatory supplier check as per user request
+            // if (initQty > 0 && !values.supplier_id) ...
 
             const payload = {
                 name: values.name,
@@ -136,11 +132,11 @@ export function NewMaterialDialog({ open, onOpenChange, onSuccess }: NewMaterial
             const newMaterial = await createMaterial(payload)
 
             // If initial quantity is set, create a batch automatically
-            if (initQty > 0 && values.supplier_id) {
+            if (initQty > 0) {
                 try {
                     await createMaterialBatch({
                         material: newMaterial.id,
-                        supplier: values.supplier_id,
+                        supplier: values.supplier_id || null, // Allow null if not selected
                         batch_number: `INIT-${new Date().getTime().toString().slice(-6)}`,
                         initial_quantity: initQty,
                         current_quantity: initQty,
@@ -330,11 +326,11 @@ export function NewMaterialDialog({ open, onOpenChange, onSuccess }: NewMaterial
                                 name="supplier_id"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Yetkazib Beruvchi (Qoldiq uchun)</FormLabel>
+                                        <FormLabel>Yetkazib Beruvchi (Ixtiyoriy)</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
                                                 <SelectTrigger>
-                                                    <SelectValue placeholder="Tanlang" />
+                                                    <SelectValue placeholder="Tanlang (shart emas)" />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
