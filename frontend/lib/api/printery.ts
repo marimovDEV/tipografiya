@@ -12,6 +12,8 @@ import type {
     WarehouseStatusReport,
     ProductionAnalytics,
     MaterialBatchEnhanced,
+    MaterialBatchEnhanced,
+    Material,
     WorkerTimeLog,
 } from "@/lib/types"
 
@@ -160,6 +162,19 @@ export async function createMaterialBatch(data: any): Promise<MaterialBatchEnhan
 
     if (!response.ok) {
         throw new Error("Failed to create material batch")
+    }
+
+    return response.json()
+}
+
+export async function createMaterial(data: any): Promise<Material> {
+    const response = await fetchWithAuth(`${API_BASE}/inventory/`, {
+        method: "POST",
+        body: JSON.stringify(data),
+    })
+
+    if (!response.ok) {
+        throw new Error("Failed to create material")
     }
 
     return response.json()

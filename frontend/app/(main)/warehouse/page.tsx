@@ -25,7 +25,8 @@ import { formatCurrency } from "@/lib/data/mock-data"
 import { HelpModeToggle } from "@/components/settings/HelpModeToggle"
 import { HelpText, HelpBox } from "@/components/ui/help-text"
 import { MaterialReceiptDialog } from "@/components/warehouse/material-receipt-dialog"
-import { PlusCircle } from "lucide-react"
+import { NewMaterialDialog } from "@/components/warehouse/new-material-dialog"
+import { PlusCircle, Plus } from "lucide-react"
 
 export default function EnhancedWarehousePage() {
   const [activeTab, setActiveTab] = useState("overview")
@@ -39,6 +40,7 @@ export default function EnhancedWarehousePage() {
   const [blockDialogOpen, setBlockDialogOpen] = useState(false)
   const [blockReason, setBlockReason] = useState("")
   const [receiptDialogOpen, setReceiptDialogOpen] = useState(false)
+  const [newMaterialDialogOpen, setNewMaterialDialogOpen] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
