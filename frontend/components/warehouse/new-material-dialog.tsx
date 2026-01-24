@@ -10,8 +10,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Loader2, Plus } from "lucide-react"
-import { createMaterial } from "@/lib/api/printery"
+import { createMaterial, createMaterialBatch } from "@/lib/api/printery"
+import { fetchWithAuth } from "@/lib/api-client"
+import { Supplier } from "@/lib/types"
 import { toast } from "sonner"
+import { format } from "date-fns"
 
 // Predefined categories and units
 const CATEGORIES = [
