@@ -41,6 +41,8 @@ const formSchema = z.object({
     unit: z.string().min(1, "O'lchov birligini tanlang"),
     min_stock: z.string().min(1, "Minimal qoldiq kiritilishi shart"),
     price_per_unit: z.string().min(1, "Narx kiritilishi shart"),
+    initial_quantity: z.string().optional(),
+    supplier_id: z.string().optional(),
 })
 
 interface NewMaterialDialogProps {
@@ -52,6 +54,26 @@ interface NewMaterialDialogProps {
 export function NewMaterialDialog({ open, onOpenChange, onSuccess }: NewMaterialDialogProps) {
     const [loading, setLoading] = useState(false)
     const [isCustomCategory, setIsCustomCategory] = useState(false)
+    const [suppliers, setSuppliers] = useState<Supplier[]>([])
+
+    // Load suppliers when dialog opens
+    useState(() => {
+        if (open) {
+            loadSuppliers()
+        }
+    })
+
+    async function loadSuppliers() {
+        try {
+            const res = await fetchWithAuth("/api/suppliers/")
+            if (res.ok) {
+                const data = await res.json()
+                setSuppliers(data.results || data)
+            }
+        } catch (e) {
+            console.error("Failed to load suppliers", e)
+        }
+    }
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -62,6 +84,8 @@ export function NewMaterialDialog({ open, onOpenChange, onSuccess }: NewMaterial
             unit: "kg",
             min_stock: "100",
             price_per_unit: "0",
+            initial_quantity: "0",
+            supplier_id: "",
         },
     })
 
@@ -78,8 +102,31 @@ export function NewMaterialDialog({ open, onOpenChange, onSuccess }: NewMaterial
                 is_active: true
             }
 
-            await createMaterial(payload)
-            toast.success("Yangi material yaratildi")
+            const newMaterial = await createMaterial(payload)
+
+            // If initial quantity is set, create a batch automatically
+            const initQty = parseFloat(values.initial_quantity || "0")
+            if (initQty > 0 && values.supplier_id) {
+                try {
+                    await createMaterialBatch({
+                        material: newMaterial.id,
+                        supplier: values.supplier_id,
+                        batch_number: `INIT-${new Date().getTime().toString().slice(-6)}`,
+                        initial_quantity: initQty,
+                        current_quantity: initQty,
+                        cost_per_unit: parseFloat(values.price_per_unit),
+                        received_date: format(new Date(), "yyyy-MM-dd"),
+                        is_active: true
+                    })
+                    toast.success("Boshlang'ich qoldiq qo'shildi")
+                } catch (batchError) {
+                    console.error(batchError)
+                    toast.error("Material yaratildi, lekin qoldiq qo'shishda xatolik bo'ldi")
+                }
+            } else {
+                toast.success("Yangi material yaratildi")
+            }
+
             onSuccess()
             onOpenChange(false)
             form.reset()
@@ -231,18 +278,61 @@ export function NewMaterialDialog({ open, onOpenChange, onSuccess }: NewMaterial
                             />
                         </div>
 
-                        <DialogFooter className="mt-4">
-                            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                                Bekor qilish
-                            </Button>
-                            <Button type="submit" disabled={loading}>
-                                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Yaratish
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </Form>
-            </DialogContent>
-        </Dialog>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                            control={form.control}
+                            name="initial_quantity"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-blue-600">Boshlang'ich Qoldiq</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} type="number" step="0.01" />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="supplier_id"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Yetkazib Beruvchi (Qoldiq uchun)</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Tanlang" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {suppliers.map((s) => (
+                                                <SelectItem key={s.id} value={String(s.id)}>
+                                                    {s.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+
+                    <DialogFooter className="mt-4">
+                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                            Bekor qilish
+                        </Button>
+                        <Button type="submit" disabled={loading}>
+                            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Yaratish
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </Form>
+        </DialogContent>
+        </Dialog >
     )
 }
