@@ -133,6 +133,18 @@ export default function EnhancedWarehousePage() {
     }
   }
 
+  async function handleDeleteMaterial() {
+    if (!materialToDelete) return
+    try {
+      await deleteMaterial(String(materialToDelete.id))
+      toast.success("Material o'chirildi")
+      setDeleteConfirmOpen(false)
+      loadAllData()
+    } catch (e) {
+      toast.error("Materialni o'chirishda xatolik. Balki unda qoldiq bordir?")
+    }
+  }
+
   const filteredInventory = inventory.filter(item =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
