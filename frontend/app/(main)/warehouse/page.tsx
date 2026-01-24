@@ -608,16 +608,15 @@ export default function EnhancedWarehousePage() {
           </div>
         </DialogContent>
       </Dialog>
-    </DialogContent>
-      </Dialog >
 
-    <MaterialReceiptDialog
-      open={receiptDialogOpen}
-      onOpenChange={setReceiptDialogOpen}
-      onSuccess={() => {
-        loadAllData()
-      }}
-    />
+
+      <MaterialReceiptDialog
+        open={receiptDialogOpen}
+        onOpenChange={setReceiptDialogOpen}
+        onSuccess={() => {
+          loadAllData()
+        }}
+      />
     </div >
   )
 }
