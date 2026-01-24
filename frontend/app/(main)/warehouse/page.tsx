@@ -24,6 +24,8 @@ import { toast } from "sonner"
 import { formatCurrency } from "@/lib/data/mock-data"
 import { HelpModeToggle } from "@/components/settings/HelpModeToggle"
 import { HelpText, HelpBox } from "@/components/ui/help-text"
+import { MaterialReceiptDialog } from "@/components/warehouse/material-receipt-dialog"
+import { PlusCircle } from "lucide-react"
 
 export default function EnhancedWarehousePage() {
   const [activeTab, setActiveTab] = useState("overview")
@@ -36,6 +38,7 @@ export default function EnhancedWarehousePage() {
   const [selectedBatch, setSelectedBatch] = useState<MaterialBatchEnhanced | null>(null)
   const [blockDialogOpen, setBlockDialogOpen] = useState(false)
   const [blockReason, setBlockReason] = useState("")
+  const [receiptDialogOpen, setReceiptDialogOpen] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -138,7 +141,13 @@ export default function EnhancedWarehousePage() {
             Material qoldig'i, sifat nazorati va ogohlantirishlar
           </p>
         </div>
-        <HelpModeToggle />
+        <div className="flex gap-2">
+          <Button onClick={() => setReceiptDialogOpen(true)}>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Material Qabul Qilish
+          </Button>
+          <HelpModeToggle />
+        </div>
       </div>
 
       <HelpBox variant="amber" title="📦 Ombor nazorati">
@@ -599,6 +608,16 @@ export default function EnhancedWarehousePage() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </DialogContent>
+      </Dialog >
+
+    <MaterialReceiptDialog
+      open={receiptDialogOpen}
+      onOpenChange={setReceiptDialogOpen}
+      onSuccess={() => {
+        loadAllData()
+      }}
+    />
+    </div >
   )
 }

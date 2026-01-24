@@ -152,6 +152,19 @@ export async function getCompatibleMaterials(templateId: string, layerNumber: nu
 // Warehouse Management
 // ============================================================================
 
+export async function createMaterialBatch(data: any): Promise<MaterialBatchEnhanced> {
+    const response = await fetchWithAuth(`${API_BASE}/batches/`, {
+        method: "POST",
+        body: JSON.stringify(data),
+    })
+
+    if (!response.ok) {
+        throw new Error("Failed to create material batch")
+    }
+
+    return response.json()
+}
+
 export async function blockMaterialBatch(batchId: string, reason: string): Promise<any> {
     const response = await fetchWithAuth(`${API_BASE}/warehouse/batches/${batchId}/block/`, {
         method: "POST",
