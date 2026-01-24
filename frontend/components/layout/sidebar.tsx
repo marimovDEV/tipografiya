@@ -26,7 +26,7 @@ const navigation = [
     icon: Factory,
     roles: ["admin", "project_manager", "warehouse", "cutter", "printer", "finishing", "qc"],
   },
-  { name: "Sklad", href: "/warehouse", icon: Warehouse, roles: ["admin", "warehouse"] },
+  { name: "Sklad", href: "/warehouse", icon: Warehouse, roles: ["admin", "warehouse", "warehouse_manager", "project_manager", "production_manager"] },
   { name: "Tugagan Ishlar", href: "/archive", icon: Archive, roles: ["admin", "project_manager"], },
   { name: "Hisobotlar", href: "/reports", icon: FileText, roles: ["admin", "project_manager", "accountant"] },
   { name: "Sozlamalar", href: "/settings", icon: Settings, roles: ["admin"] },
