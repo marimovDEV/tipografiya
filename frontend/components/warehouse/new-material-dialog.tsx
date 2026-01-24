@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, Plus } from "lucide-react"
 import { createMaterial, createMaterialBatch } from "@/lib/api/printery"
 import { fetchWithAuth } from "@/lib/api-client"
-import { Supplier } from "@/lib/types"
+import { Supplier, Material } from "@/lib/types"
 import { toast } from "sonner"
 import { format } from "date-fns"
 
@@ -55,23 +55,32 @@ export function NewMaterialDialog({ open, onOpenChange, onSuccess }: NewMaterial
     const [loading, setLoading] = useState(false)
     const [isCustomCategory, setIsCustomCategory] = useState(false)
     const [suppliers, setSuppliers] = useState<Supplier[]>([])
+    const [existingMaterials, setExistingMaterials] = useState<Material[]>([])
 
-    // Load suppliers when dialog opens
+    // Load data when dialog opens
     useState(() => {
         if (open) {
-            loadSuppliers()
+            loadData()
         }
     })
 
-    async function loadSuppliers() {
+    async function loadData() {
         try {
-            const res = await fetchWithAuth("/api/suppliers/")
-            if (res.ok) {
-                const data = await res.json()
+            const [suppliersRes, materialsRes] = await Promise.all([
+                fetchWithAuth("/api/suppliers/"),
+                fetchWithAuth("/api/inventory/")
+            ])
+
+            if (suppliersRes.ok) {
+                const data = await suppliersRes.json()
                 setSuppliers(data.results || data)
             }
+            if (materialsRes.ok) {
+                const data = await materialsRes.json()
+                setExistingMaterials(data.results || data)
+            }
         } catch (e) {
-            console.error("Failed to load suppliers", e)
+            console.error("Failed to load data", e)
         }
     }
 
@@ -92,6 +101,28 @@ export function NewMaterialDialog({ open, onOpenChange, onSuccess }: NewMaterial
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setLoading(true)
         try {
+            // 1. Check for duplicates
+            const normalize = (str: string) => str.toLowerCase().trim()
+            const isDuplicate = existingMaterials.some(
+                m => normalize(m.name) === normalize(values.name) &&
+                    normalize(m.category || "") === normalize(isCustomCategory ? values.new_category || "" : values.category)
+            )
+
+            if (isDuplicate) {
+                toast.error("Bunday nomli va kategoriyali material allaqachon mavjud!")
+                setLoading(false)
+                return
+            }
+
+            // 2. Validate Supplier if Initial Quantity is set
+            const initQty = parseFloat(values.initial_quantity || "0")
+            if (initQty > 0 && !values.supplier_id) {
+                toast.error("Boshlang'ich qoldiq kiritilganda, yetkazib beruvchini tanlash shart!")
+                form.setError("supplier_id", { message: "Yetkazib beruvchini tanlang" })
+                setLoading(false)
+                return
+            }
+
             const payload = {
                 name: values.name,
                 category: isCustomCategory ? values.new_category : values.category,
