@@ -144,6 +144,10 @@ export default function EnhancedWarehousePage() {
           </p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setNewMaterialDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Yangi Material
+          </Button>
           <Button onClick={() => setReceiptDialogOpen(true)}>
             <PlusCircle className="mr-2 h-4 w-4" />
             Material Qabul Qilish
@@ -617,6 +621,15 @@ export default function EnhancedWarehousePage() {
         onOpenChange={setReceiptDialogOpen}
         onSuccess={() => {
           loadAllData()
+        }}
+      />
+
+      <NewMaterialDialog
+        open={newMaterialDialogOpen}
+        onOpenChange={setNewMaterialDialogOpen}
+        onSuccess={() => {
+          loadAllData()
+          toast.success("Endi ushbu materialga kirim qilishingiz mumkin")
         }}
       />
     </div >
