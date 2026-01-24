@@ -278,61 +278,61 @@ export function NewMaterialDialog({ open, onOpenChange, onSuccess }: NewMaterial
                             />
                         </div>
 
-                    </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <FormField
-                            control={form.control}
-                            name="initial_quantity"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-blue-600">Boshlang'ich Qoldiq</FormLabel>
-                                    <FormControl>
-                                        <Input {...field} type="number" step="0.01" />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
 
-                        <FormField
-                            control={form.control}
-                            name="supplier_id"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Yetkazib Beruvchi (Qoldiq uchun)</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="initial_quantity"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="text-blue-600">Boshlang'ich Qoldiq</FormLabel>
                                         <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Tanlang" />
-                                            </SelectTrigger>
+                                            <Input {...field} type="number" step="0.01" />
                                         </FormControl>
-                                        <SelectContent>
-                                            {suppliers.map((s) => (
-                                                <SelectItem key={s.id} value={String(s.id)}>
-                                                    {s.name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                    <DialogFooter className="mt-4">
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                            Bekor qilish
-                        </Button>
-                        <Button type="submit" disabled={loading}>
-                            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Yaratish
-                        </Button>
-                    </DialogFooter>
-                </form>
-            </Form>
-        </DialogContent>
+                            <FormField
+                                control={form.control}
+                                name="supplier_id"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Yetkazib Beruvchi (Qoldiq uchun)</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Tanlang" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {suppliers.map((s) => (
+                                                    <SelectItem key={s.id} value={String(s.id)}>
+                                                        {s.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        <DialogFooter className="mt-4">
+                            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                                Bekor qilish
+                            </Button>
+                            <Button type="submit" disabled={loading}>
+                                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Yaratish
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </Form>
+            </DialogContent>
         </Dialog >
     )
 }
