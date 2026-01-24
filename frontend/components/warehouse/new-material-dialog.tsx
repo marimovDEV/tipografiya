@@ -136,7 +136,6 @@ export function NewMaterialDialog({ open, onOpenChange, onSuccess }: NewMaterial
             const newMaterial = await createMaterial(payload)
 
             // If initial quantity is set, create a batch automatically
-            const initQty = parseFloat(values.initial_quantity || "0")
             if (initQty > 0 && values.supplier_id) {
                 try {
                     await createMaterialBatch({
