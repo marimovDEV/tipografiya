@@ -280,7 +280,7 @@ export default function EnhancedWarehousePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredInventory.map((item) => (
-              <Card key={item.id}>
+              <Card key={item.id} className="relative group">
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start mb-3">
                     <div>
@@ -289,306 +289,309 @@ export default function EnhancedWarehousePage() {
                     </div>
                     <Badge
                       variant={item.current_stock < item.min_stock ? "destructive" : "secondary"}
+                    >
                       {item.current_stock.toLocaleString()} {item.unit}
                     </Badge>
+                  </div>
+
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6 text-muted-foreground hover:text-red-500 absolute top-4 right-4"
-                    onClick={() => {
+                    className="h-8 w-8 text-muted-foreground hover:text-red-500 absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={(e) => {
+                      e.stopPropagation()
                       setMaterialToDelete(item)
                       setDeleteConfirmOpen(true)
                     }}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
-                </div>
 
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Narx:</span>
-                    <span className="font-medium">{formatCurrency(item.price_per_unit)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Min. chegara:</span>
-                    <span className="font-medium">{item.min_stock}</span>
-                  </div>
-                  {item.batches && item.batches.length > 0 && (
-                    <div className="pt-2 border-t">
-                      <span className="text-muted-foreground">Partiyalar: </span>
-                      <span className="font-medium">{item.batches.length} ta</span>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Narx:</span>
+                      <span className="font-medium">{formatCurrency(item.price_per_unit)}</span>
                     </div>
-                  )}
-                </div>
-              </CardContent>
-              </Card>
-            ))}
-        </div>
-      </TabsContent>
-
-      {/* Batches Tab */}
-      <TabsContent value="batches" className="space-y-4">
-        <div className="space-y-3">
-          {inventory.flatMap(material =>
-            (material.batches || []).map(batch => {
-              const enhancedBatch = batch as MaterialBatchEnhanced
-              return (
-                <Card key={batch.id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h4 className="font-semibold">{material.name}</h4>
-                          <Badge variant="outline">#{batch.batch_number}</Badge>
-                          {enhancedBatch.quality_status === 'ok' && (
-                            <Badge className="bg-green-100 text-green-700">
-                              <CheckCircle className="w-3 h-3 mr-1" />
-                              OK
-                            </Badge>
-                          )}
-                          {enhancedBatch.quality_status === 'blocked' && (
-                            <Badge variant="destructive">
-                              <Ban className="w-3 h-3 mr-1" />
-                              Bloklangan
-                            </Badge>
-                          )}
-                          {enhancedBatch.quality_status === 'quarantine' && (
-                            <Badge className="bg-yellow-100 text-yellow-700">
-                              <Shield className="w-3 h-3 mr-1" />
-                              Karantin
-                            </Badge>
-                          )}
-                        </div>
-
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                          <div>
-                            <span className="text-muted-foreground">Miqdor:</span>
-                            <p className="font-medium">{batch.current_quantity} {material.unit}</p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Narx:</span>
-                            <p className="font-medium">{formatCurrency(batch.cost_per_unit)}</p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Qabul qilindi:</span>
-                            <p className="font-medium">
-                              {new Date(batch.received_date).toLocaleDateString("uz-UZ")}
-                            </p>
-                          </div>
-                          {batch.expiry_date && (
-                            <div>
-                              <span className="text-muted-foreground">Muddati:</span>
-                              <p className="font-medium">
-                                {new Date(batch.expiry_date).toLocaleDateString("uz-UZ")}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-
-                        {enhancedBatch.block_reason && (
-                          <div className="mt-3 p-3 bg-red-50 rounded-lg">
-                            <p className="text-sm font-medium text-red-900">
-                              Bloklash sababi:
-                            </p>
-                            <p className="text-sm text-red-700">{enhancedBatch.block_reason}</p>
-                            {enhancedBatch.blocked_at && (
-                              <p className="text-xs text-red-600 mt-1">
-                                {new Date(enhancedBatch.blocked_at).toLocaleString("uz-UZ")}
-                                {enhancedBatch.blocked_by_name && ` • ${enhancedBatch.blocked_by_name}`}
-                              </p>
-                            )}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex gap-2">
-                        {enhancedBatch.quality_status === 'blocked' ? (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleUnblockBatch(batch.id as string)}
-                          >
-                            <Unlock className="w-4 h-4 mr-2" />
-                            Blokdan Chiqarish
-                          </Button>
-                        ) : (
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => {
-                              setSelectedBatch(enhancedBatch)
-                              setBlockDialogOpen(true)
-                            }}
-                          >
-                            <Lock className="w-4 h-4 mr-2" />
-                            Bloklash
-                          </Button>
-                        )}
-                      </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Min. chegara:</span>
+                      <span className="font-medium">{item.min_stock}</span>
                     </div>
-                  </CardContent>
-                </Card>
-              )
-            })
-          )}
-        </div>
-      </TabsContent>
-
-      {/* Expiring Batches Tab */}
-      <TabsContent value="expiring" className="space-y-4">
-        {expiringBatches.length === 0 ? (
-          <Card>
-            <CardContent className="p-12 text-center">
-              <CheckCircle className="w-12 h-12 mx-auto text-green-500 mb-3" />
-              <p className="text-muted-foreground">
-                Muddati o'tadigan partiyalar yo'q
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-3">
-            {expiringBatches.map((batch) => {
-              const daysLeft = batch.days_until_expiry || 0
-              const urgencyColor = daysLeft <= 7 ? 'text-red-600' : daysLeft <= 14 ? 'text-orange-600' : 'text-yellow-600'
-
-              return (
-                <Card key={batch.id} className="border-l-4 border-l-yellow-500">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h4 className="font-semibold">{batch.material_name}</h4>
-                          <Badge variant="outline">#{batch.batch_number}</Badge>
-                          <Badge className={urgencyColor}>
-                            <Clock className="w-3 h-3 mr-1" />
-                            {daysLeft} kun qoldi
-                          </Badge>
-                        </div>
-
-                        <div className="grid grid-cols-3 gap-4 text-sm">
-                          <div>
-                            <span className="text-muted-foreground">Miqdor:</span>
-                            <p className="font-medium">{batch.current_quantity} {batch.unit}</p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Muddat:</span>
-                            <p className="font-medium">
-                              {batch.expiry_date && new Date(batch.expiry_date).toLocaleDateString("uz-UZ")}
-                            </p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Yetkazuvchi:</span>
-                            <p className="font-medium">{batch.supplier_name || "-"}</p>
-                          </div>
-                        </div>
+                    {item.batches && item.batches.length > 0 && (
+                      <div className="pt-2 border-t">
+                        <span className="text-muted-foreground">Partiyalar: </span>
+                        <span className="font-medium">{item.batches.length} ta</span>
                       </div>
-
-                      <AlertTriangle className={`w-6 h-6 ${urgencyColor}`} />
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
-        )}
-      </TabsContent>
-
-      {/* Low Stock Alerts Tab */}
-      <TabsContent value="alerts" className="space-y-4">
-        {lowStockMaterials.length === 0 ? (
-          <Card>
-            <CardContent className="p-12 text-center">
-              <CheckCircle className="w-12 h-12 mx-auto text-green-500 mb-3" />
-              <p className="text-muted-foreground">
-                Barcha materiallar yetarli miqdorda
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-3">
-            {lowStockMaterials.map((material) => (
-              <Card key={material.id} className="border-l-4 border-l-orange-500">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h4 className="font-semibold">{material.name}</h4>
-                        <Badge variant="destructive">Kam qoldi</Badge>
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-4 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">Qoldi:</span>
-                          <p className="font-medium text-red-600">
-                            {material.current_stock} {material.unit}
-                          </p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Min. chegara:</span>
-                          <p className="font-medium">{material.min_stock} {material.unit}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Yetishmaydi:</span>
-                          <p className="font-medium text-orange-600">
-                            {material.min_stock - material.current_stock} {material.unit}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <TrendingDown className="w-6 h-6 text-orange-500" />
+                    )}
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
-        )}
-      </TabsContent>
+        </TabsContent>
 
-      {/* History Tab */}
-      <TabsContent value="history">
-        <Card>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-muted/50">
-                  <tr>
-                    <th className="p-3 text-left font-medium text-muted-foreground">Vaqt</th>
-                    <th className="p-3 text-left font-medium text-muted-foreground">Material</th>
-                    <th className="p-3 text-left font-medium text-muted-foreground">Turi</th>
-                    <th className="p-3 text-right font-medium text-muted-foreground">Miqdor</th>
-                    <th className="p-3 text-left font-medium text-muted-foreground">Izoh</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {logs.map((log) => (
-                    <tr key={log.id} className="hover:bg-muted/50">
-                      <td className="p-3 whitespace-nowrap">
-                        {new Date(log.created_at).toLocaleString("uz-UZ")}
-                      </td>
-                      <td className="p-3 font-medium">{log.material_name}</td>
-                      <td className="p-3">
-                        <Badge variant={log.type === 'in' ? "default" : "destructive"}>
-                          {log.type === 'in' ? 'KIRIM' : 'CHIQIM'}
-                        </Badge>
-                      </td>
-                      <td className={`p-3 text-right font-bold ${log.type === 'in' ? 'text-green-600' : 'text-red-600'}`}>
-                        {log.type === 'in' ? '+' : '-'}{Number(log.change_amount).toLocaleString()}
-                      </td>
-                      <td className="p-3 text-muted-foreground truncate max-w-xs">
-                        {log.notes || "-"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        {/* Batches Tab */}
+        <TabsContent value="batches" className="space-y-4">
+          <div className="space-y-3">
+            {inventory.flatMap(material =>
+              (material.batches || []).map(batch => {
+                const enhancedBatch = batch as MaterialBatchEnhanced
+                return (
+                  <Card key={batch.id}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h4 className="font-semibold">{material.name}</h4>
+                            <Badge variant="outline">#{batch.batch_number}</Badge>
+                            {enhancedBatch.quality_status === 'ok' && (
+                              <Badge className="bg-green-100 text-green-700">
+                                <CheckCircle className="w-3 h-3 mr-1" />
+                                OK
+                              </Badge>
+                            )}
+                            {enhancedBatch.quality_status === 'blocked' && (
+                              <Badge variant="destructive">
+                                <Ban className="w-3 h-3 mr-1" />
+                                Bloklangan
+                              </Badge>
+                            )}
+                            {enhancedBatch.quality_status === 'quarantine' && (
+                              <Badge className="bg-yellow-100 text-yellow-700">
+                                <Shield className="w-3 h-3 mr-1" />
+                                Karantin
+                              </Badge>
+                            )}
+                          </div>
+
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div>
+                              <span className="text-muted-foreground">Miqdor:</span>
+                              <p className="font-medium">{batch.current_quantity} {material.unit}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Narx:</span>
+                              <p className="font-medium">{formatCurrency(batch.cost_per_unit)}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Qabul qilindi:</span>
+                              <p className="font-medium">
+                                {new Date(batch.received_date).toLocaleDateString("uz-UZ")}
+                              </p>
+                            </div>
+                            {batch.expiry_date && (
+                              <div>
+                                <span className="text-muted-foreground">Muddati:</span>
+                                <p className="font-medium">
+                                  {new Date(batch.expiry_date).toLocaleDateString("uz-UZ")}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+
+                          {enhancedBatch.block_reason && (
+                            <div className="mt-3 p-3 bg-red-50 rounded-lg">
+                              <p className="text-sm font-medium text-red-900">
+                                Bloklash sababi:
+                              </p>
+                              <p className="text-sm text-red-700">{enhancedBatch.block_reason}</p>
+                              {enhancedBatch.blocked_at && (
+                                <p className="text-xs text-red-600 mt-1">
+                                  {new Date(enhancedBatch.blocked_at).toLocaleString("uz-UZ")}
+                                  {enhancedBatch.blocked_by_name && ` • ${enhancedBatch.blocked_by_name}`}
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex gap-2">
+                          {enhancedBatch.quality_status === 'blocked' ? (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleUnblockBatch(batch.id as string)}
+                            >
+                              <Unlock className="w-4 h-4 mr-2" />
+                              Blokdan Chiqarish
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => {
+                                setSelectedBatch(enhancedBatch)
+                                setBlockDialogOpen(true)
+                              }}
+                            >
+                              <Lock className="w-4 h-4 mr-2" />
+                              Bloklash
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })
+            )}
+          </div>
+        </TabsContent>
+
+        {/* Expiring Batches Tab */}
+        <TabsContent value="expiring" className="space-y-4">
+          {expiringBatches.length === 0 ? (
+            <Card>
+              <CardContent className="p-12 text-center">
+                <CheckCircle className="w-12 h-12 mx-auto text-green-500 mb-3" />
+                <p className="text-muted-foreground">
+                  Muddati o'tadigan partiyalar yo'q
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {expiringBatches.map((batch) => {
+                const daysLeft = batch.days_until_expiry || 0
+                const urgencyColor = daysLeft <= 7 ? 'text-red-600' : daysLeft <= 14 ? 'text-orange-600' : 'text-yellow-600'
+
+                return (
+                  <Card key={batch.id} className="border-l-4 border-l-yellow-500">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h4 className="font-semibold">{batch.material_name}</h4>
+                            <Badge variant="outline">#{batch.batch_number}</Badge>
+                            <Badge className={urgencyColor}>
+                              <Clock className="w-3 h-3 mr-1" />
+                              {daysLeft} kun qoldi
+                            </Badge>
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-4 text-sm">
+                            <div>
+                              <span className="text-muted-foreground">Miqdor:</span>
+                              <p className="font-medium">{batch.current_quantity} {batch.unit}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Muddat:</span>
+                              <p className="font-medium">
+                                {batch.expiry_date && new Date(batch.expiry_date).toLocaleDateString("uz-UZ")}
+                              </p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Yetkazuvchi:</span>
+                              <p className="font-medium">{batch.supplier_name || "-"}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <AlertTriangle className={`w-6 h-6 ${urgencyColor}`} />
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
             </div>
-          </CardContent>
-        </Card>
-      </TabsContent>
-    </Tabs>
+          )}
+        </TabsContent>
 
-      {/* Block Batch Dialog */ }
+        {/* Low Stock Alerts Tab */}
+        <TabsContent value="alerts" className="space-y-4">
+          {lowStockMaterials.length === 0 ? (
+            <Card>
+              <CardContent className="p-12 text-center">
+                <CheckCircle className="w-12 h-12 mx-auto text-green-500 mb-3" />
+                <p className="text-muted-foreground">
+                  Barcha materiallar yetarli miqdorda
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {lowStockMaterials.map((material) => (
+                <Card key={material.id} className="border-l-4 border-l-orange-500">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h4 className="font-semibold">{material.name}</h4>
+                          <Badge variant="destructive">Kam qoldi</Badge>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <span className="text-muted-foreground">Qoldi:</span>
+                            <p className="font-medium text-red-600">
+                              {material.current_stock} {material.unit}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Min. chegara:</span>
+                            <p className="font-medium">{material.min_stock} {material.unit}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Yetishmaydi:</span>
+                            <p className="font-medium text-orange-600">
+                              {material.min_stock - material.current_stock} {material.unit}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <TrendingDown className="w-6 h-6 text-orange-500" />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        {/* History Tab */}
+        <TabsContent value="history">
+          <Card>
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/50">
+                    <tr>
+                      <th className="p-3 text-left font-medium text-muted-foreground">Vaqt</th>
+                      <th className="p-3 text-left font-medium text-muted-foreground">Material</th>
+                      <th className="p-3 text-left font-medium text-muted-foreground">Turi</th>
+                      <th className="p-3 text-right font-medium text-muted-foreground">Miqdor</th>
+                      <th className="p-3 text-left font-medium text-muted-foreground">Izoh</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    {logs.map((log) => (
+                      <tr key={log.id} className="hover:bg-muted/50">
+                        <td className="p-3 whitespace-nowrap">
+                          {new Date(log.created_at).toLocaleString("uz-UZ")}
+                        </td>
+                        <td className="p-3 font-medium">{log.material_name}</td>
+                        <td className="p-3">
+                          <Badge variant={log.type === 'in' ? "default" : "destructive"}>
+                            {log.type === 'in' ? 'KIRIM' : 'CHIQIM'}
+                          </Badge>
+                        </td>
+                        <td className={`p-3 text-right font-bold ${log.type === 'in' ? 'text-green-600' : 'text-red-600'}`}>
+                          {log.type === 'in' ? '+' : '-'}{Number(log.change_amount).toLocaleString()}
+                        </td>
+                        <td className="p-3 text-muted-foreground truncate max-w-xs">
+                          {log.notes || "-"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Block Batch Dialog */}
       <Dialog open={blockDialogOpen} onOpenChange={setBlockDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -641,20 +644,20 @@ export default function EnhancedWarehousePage() {
           </div>
         </DialogContent>
       </Dialog>
-      
+
       <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Materialni o'chirish</DialogTitle>
-                <DialogDescription>
-                    Haqiqatan ham "{materialToDelete?.name}" ni o'chirmoqchimisiz?
-                    Bu amalni ortga qaytarib bo'lmaydi.
-                </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-                <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)}>Bekor qilish</Button>
-                <Button variant="destructive" onClick={handleDeleteMaterial}>O'chirish</Button>
-            </DialogFooter>
+          <DialogHeader>
+            <DialogTitle>Materialni o'chirish</DialogTitle>
+            <DialogDescription>
+              Haqiqatan ham "{materialToDelete?.name}" ni o'chirmoqchimisiz?
+              Bu amalni ortga qaytarib bo'lmaydi.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)}>Bekor qilish</Button>
+            <Button variant="destructive" onClick={handleDeleteMaterial}>O'chirish</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
