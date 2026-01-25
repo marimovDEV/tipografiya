@@ -1,9 +1,10 @@
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save, pre_save, post_delete
 from django.dispatch import receiver
 from django.conf import settings
+from django.db.models import Sum
 import requests
 import logging
-from .models import Order
+from .models import Order, MaterialBatch, Material
 from .services import ProductionAssignmentService
 
 logger = logging.getLogger(__name__)
@@ -77,3 +78,33 @@ def send_telegram_notification(order):
             logger.error(f"Telegram notification failed: {response.text}")
     except Exception as e:
         logger.error(f"Telegram notification error: {e}")
+
+
+# ============================================================================
+# Material Stock Auto-Update Signal
+# ============================================================================
+
+def recalculate_material_stock(material):
+    """Recalculate and update the current_stock for a Material based on its active batches."""
+    if not material:
+        return
+    
+    total = material.batches.filter(is_active=True).aggregate(
+        total=Sum('current_quantity')
+    )['total'] or 0
+    
+    material.current_stock = total
+    material.save(update_fields=['current_stock'])
+    logger.info(f"Updated stock for Material '{material.name}': {total}")
+
+
+@receiver(post_save, sender=MaterialBatch)
+def update_material_stock_on_batch_save(sender, instance, **kwargs):
+    """Update Material.current_stock when a batch is saved."""
+    recalculate_material_stock(instance.material)
+
+
+@receiver(post_delete, sender=MaterialBatch)
+def update_material_stock_on_batch_delete(sender, instance, **kwargs):
+    """Update Material.current_stock when a batch is deleted."""
+    recalculate_material_stock(instance.material)
