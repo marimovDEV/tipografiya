@@ -181,7 +181,7 @@ export async function createMaterial(data: any): Promise<Material> {
 }
 
 export async function deleteMaterial(id: string): Promise<void> {
-    const response = await fetchWithAuth(`${API_BASE}/inventory/${id}/`, {
+    const response = await fetchWithAuth(`${API_BASE}/materials/${id}/`, {
         method: "DELETE",
     })
 
