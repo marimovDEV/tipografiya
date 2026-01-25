@@ -180,6 +180,16 @@ export async function createMaterial(data: any): Promise<Material> {
     return response.json()
 }
 
+export async function deleteMaterial(id: string): Promise<void> {
+    const response = await fetchWithAuth(`${API_BASE}/inventory/${id}/`, {
+        method: "DELETE",
+    })
+
+    if (!response.ok) {
+        throw new Error("Failed to delete material")
+    }
+}
+
 export async function blockMaterialBatch(batchId: string, reason: string): Promise<any> {
     const response = await fetchWithAuth(`${API_BASE}/warehouse/batches/${batchId}/block/`, {
         method: "POST",
