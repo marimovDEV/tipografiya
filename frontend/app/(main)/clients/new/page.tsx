@@ -40,7 +40,7 @@ export default function NewClientPage() {
     setLoading(true)
 
     try {
-      const response = await fetchWithAuth("/api/customers/", {
+      const response = await fetchWithAuth("/api/clients/", {
         method: "POST",
         body: JSON.stringify(formData),
       })
