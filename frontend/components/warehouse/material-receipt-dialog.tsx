@@ -23,8 +23,12 @@ const formSchema = z.object({
     material_id: z.string().min(1, "Materialni tanlang"),
     supplier_id: z.string().min(1, "Yetkazib beruvchini tanlang"),
     batch_number: z.string().min(1, "Partiya raqami kiritilishi shart"),
-    initial_quantity: z.string().min(1, "Miqdor kiritilishi shart"),
-    cost_per_unit: z.string().min(1, "Narx kiritilishi shart"),
+    initial_quantity: z.string().refine(val => val !== "" && parseFloat(val) > 0, {
+        message: "Miqdor 0 dan katta bo'lishi shart"
+    }),
+    cost_per_unit: z.string().refine(val => val !== "" && parseFloat(val) > 0, {
+        message: "Narx 0 dan katta bo'lishi shart"
+    }),
     expiry_date: z.date().optional(),
     received_date: z.date(),
 })
@@ -43,6 +47,8 @@ export function MaterialReceiptDialog({ open, onOpenChange, onSuccess }: Materia
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
+            material_id: "",
+            supplier_id: "",
             batch_number: "",
             initial_quantity: "",
             cost_per_unit: "",
@@ -192,126 +198,135 @@ export function MaterialReceiptDialog({ open, onOpenChange, onSuccess }: Materia
                                     <FormItem>
                                         <FormLabel>Miqdor *</FormLabel>
                                         <FormControl>
-                                            <Input {...field} type="number" step="0.01" />
+                                            <Input {...field} type="number" step="0.01" placeholder="100" />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
-
-                            <FormField
-                                control={form.control}
-                                name="cost_per_unit"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Bir dona narxi (so'm) *</FormLabel>
-                                        <FormControl>
-                                            <Input {...field} type="number" step="0.01" />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="received_date"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-col">
-                                        <FormLabel>Qabul Sanasi *</FormLabel>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <FormControl>
-                                                    <Button
-                                                        variant={"outline"}
-                                                        className={cn(
-                                                            "w-full pl-3 text-left font-normal",
-                                                            !field.value && "text-muted-foreground"
-                                                        )}
-                                                    >
-                                                        {field.value ? (
-                                                            format(field.value, "PPP")
-                                                        ) : (
-                                                            <span>Sanani tanlang</span>
-                                                        )}
-                                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                    </Button>
-                                                </FormControl>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0" align="start">
-                                                <Calendar
-                                                    mode="single"
-                                                    selected={field.value}
-                                                    onSelect={field.onChange}
-                                                    disabled={(date) =>
-                                                        date > new Date() || date < new Date("1900-01-01")
-                                                    }
-                                                    initialFocus
-                                                />
-                                            </PopoverContent>
-                                        </Popover>
-                                        <FormMessage />
-                                    </FormItem>
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
                                 )}
                             />
 
-                            <FormField
-                                control={form.control}
-                                name="expiry_date"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-col">
-                                        <FormLabel>Yaroqlilik muddati (Optional)</FormLabel>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <FormControl>
-                                                    <Button
-                                                        variant={"outline"}
-                                                        className={cn(
-                                                            "w-full pl-3 text-left font-normal",
-                                                            !field.value && "text-muted-foreground"
-                                                        )}
-                                                    >
-                                                        {field.value ? (
-                                                            format(field.value, "PPP")
-                                                        ) : (
-                                                            <span>Sanani tanlang</span>
-                                                        )}
-                                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                    </Button>
-                                                </FormControl>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0" align="start">
-                                                <Calendar
-                                                    mode="single"
-                                                    selected={field.value}
-                                                    onSelect={field.onChange}
-                                                    disabled={(date) =>
-                                                        date < new Date()
-                                                    }
-                                                    initialFocus
-                                                />
-                                            </PopoverContent>
-                                        </Popover>
-                                        <FormMessage />
-                                    </FormItem>
+                    <FormField
+                        control={form.control}
+                        name="cost_per_unit"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Bir dona narxi (so'm) *</FormLabel>
+                                <FormControl>
+                                    <Input {...field} type="number" step="0.01" placeholder="25000" />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormMessage />
+                </FormItem>
                                 )}
                             />
-                        </div>
+            </div>
 
-                        <DialogFooter className="mt-4">
-                            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                                Bekor qilish
-                            </Button>
-                            <Button type="submit" disabled={loading}>
-                                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Qabul qilish
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </Form>
-            </DialogContent>
-        </Dialog>
+            <div className="grid grid-cols-2 gap-4">
+                <FormField
+                    control={form.control}
+                    name="received_date"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                            <FormLabel>Qabul Sanasi *</FormLabel>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <FormControl>
+                                        <Button
+                                            variant={"outline"}
+                                            className={cn(
+                                                "w-full pl-3 text-left font-normal",
+                                                !field.value && "text-muted-foreground"
+                                            )}
+                                        >
+                                            {field.value ? (
+                                                format(field.value, "PPP")
+                                            ) : (
+                                                <span>Sanani tanlang</span>
+                                            )}
+                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                        </Button>
+                                    </FormControl>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar
+                                        mode="single"
+                                        selected={field.value}
+                                        onSelect={field.onChange}
+                                        disabled={(date) =>
+                                            date > new Date() || date < new Date("1900-01-01")
+                                        }
+                                        initialFocus
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="expiry_date"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                            <FormLabel>Yaroqlilik muddati (Optional)</FormLabel>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <FormControl>
+                                        <Button
+                                            variant={"outline"}
+                                            className={cn(
+                                                "w-full pl-3 text-left font-normal",
+                                                !field.value && "text-muted-foreground"
+                                            )}
+                                        >
+                                            {field.value ? (
+                                                format(field.value, "PPP")
+                                            ) : (
+                                                <span>Sanani tanlang</span>
+                                            )}
+                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                        </Button>
+                                    </FormControl>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar
+                                        mode="single"
+                                        selected={field.value}
+                                        onSelect={field.onChange}
+                                        disabled={(date) =>
+                                            date < new Date()
+                                        }
+                                        initialFocus
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </div>
+
+            <DialogFooter className="mt-4">
+                <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                    Bekor qilish
+                </Button>
+                <Button type="submit" disabled={loading}>
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Qabul qilish
+                </Button>
+            </DialogFooter>
+        </form>
+                </Form >
+            </DialogContent >
+        </Dialog >
     )
 }
