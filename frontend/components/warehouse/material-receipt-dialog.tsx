@@ -21,7 +21,7 @@ import { Material, Supplier } from "@/lib/types"
 
 const formSchema = z.object({
     material_id: z.string().min(1, "Materialni tanlang"),
-    supplier_id: z.string().min(1, "Yetkazib beruvchini tanlang"),
+    supplier_id: z.string().optional(), // Now optional
     batch_number: z.string().min(1, "Partiya raqami kiritilishi shart"),
     initial_quantity: z.string().refine(val => val !== "" && parseFloat(val) > 0, {
         message: "Miqdor 0 dan katta bo'lishi shart"
@@ -65,6 +65,17 @@ export function MaterialReceiptDialog({ open, onOpenChange, onSuccess }: Materia
         }
     }, [open])
 
+    // Watch material_id and auto-fill price
+    const selectedMaterialId = form.watch("material_id")
+    useEffect(() => {
+        if (selectedMaterialId) {
+            const selectedMaterial = materials.find(m => String(m.id) === selectedMaterialId)
+            if (selectedMaterial && selectedMaterial.price_per_unit) {
+                form.setValue("cost_per_unit", String(selectedMaterial.price_per_unit))
+            }
+        }
+    }, [selectedMaterialId, materials])
+
     async function loadData() {
         try {
             const [matRes, supRes] = await Promise.all([
@@ -88,7 +99,7 @@ export function MaterialReceiptDialog({ open, onOpenChange, onSuccess }: Materia
         try {
             const payload = {
                 material: values.material_id,
-                supplier: values.supplier_id,
+                supplier: values.supplier_id || null, // Allow null
                 batch_number: values.batch_number,
                 initial_quantity: parseFloat(values.initial_quantity),
                 current_quantity: parseFloat(values.initial_quantity),
@@ -155,11 +166,11 @@ export function MaterialReceiptDialog({ open, onOpenChange, onSuccess }: Materia
                                 name="supplier_id"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Yetkazib Beruvchi *</FormLabel>
+                                        <FormLabel>Yetkazib Beruvchi (Ixtiyoriy)</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
                                                 <SelectTrigger>
-                                                    <SelectValue placeholder="Tanlang" />
+                                                    <SelectValue placeholder="Tanlang (shart emas)" />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
