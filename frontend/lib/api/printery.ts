@@ -190,6 +190,19 @@ export async function deleteMaterial(id: string): Promise<void> {
     }
 }
 
+export async function updateMaterial(id: string, data: Partial<Material>): Promise<Material> {
+    const response = await fetchWithAuth(`${API_BASE}/inventory/${id}/`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+    })
+
+    if (!response.ok) {
+        throw new Error("Failed to update material")
+    }
+
+    return response.json()
+}
+
 export async function blockMaterialBatch(batchId: string, reason: string): Promise<any> {
     const response = await fetchWithAuth(`${API_BASE}/warehouse/batches/${batchId}/block/`, {
         method: "POST",

@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Search, Package, History, AlertTriangle, Clock, TrendingDown,
-  Shield, Ban, CheckCircle, XCircle, Lock, Unlock, Eye, Trash2
+  Shield, Ban, CheckCircle, XCircle, Lock, Unlock, Eye, Trash2, Pencil
 } from "lucide-react"
 import { Material, WarehouseLog, MaterialBatchEnhanced, WarehouseStatusReport } from "@/lib/types"
 import { fetchWithAuth } from "@/lib/api-client"
@@ -27,6 +27,7 @@ import { HelpModeToggle } from "@/components/settings/HelpModeToggle"
 import { HelpText, HelpBox } from "@/components/ui/help-text"
 import { MaterialReceiptDialog } from "@/components/warehouse/material-receipt-dialog"
 import { NewMaterialDialog } from "@/components/warehouse/new-material-dialog"
+import { EditMaterialDialog } from "@/components/warehouse/edit-material-dialog"
 import { PlusCircle, Plus } from "lucide-react"
 
 export default function EnhancedWarehousePage() {
@@ -46,6 +47,9 @@ export default function EnhancedWarehousePage() {
 
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [materialToDelete, setMaterialToDelete] = useState<Material | null>(null)
+
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [materialToEdit, setMaterialToEdit] = useState<Material | null>(null)
 
   useEffect(() => {
     loadAllData()
@@ -305,6 +309,19 @@ export default function EnhancedWarehousePage() {
                     }}
                   >
                     <Trash2 className="h-4 w-4" />
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-muted-foreground hover:text-blue-500 absolute top-2 right-10 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setMaterialToEdit(item)
+                      setEditDialogOpen(true)
+                    }}
+                  >
+                    <Pencil className="h-4 w-4" />
                   </Button>
 
                   <div className="space-y-2 text-sm">
@@ -676,6 +693,15 @@ export default function EnhancedWarehousePage() {
         onSuccess={() => {
           loadAllData()
           toast.success("Endi ushbu materialga kirim qilishingiz mumkin")
+        }}
+      />
+
+      <EditMaterialDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        material={materialToEdit}
+        onSuccess={() => {
+          loadAllData()
         }}
       />
     </div >
