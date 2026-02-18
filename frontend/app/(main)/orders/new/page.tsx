@@ -403,7 +403,7 @@ function ClientStep({
 
   async function loadClients() {
     try {
-      const response = await fetchWithAuth("/api/clients/")
+      const response = await fetchWithAuth("/api/customers/")
       const data = await response.json()
       console.log('Clients response:', data)
 

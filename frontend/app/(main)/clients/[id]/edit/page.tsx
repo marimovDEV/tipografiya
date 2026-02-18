@@ -55,7 +55,7 @@ export default function EditClientPage() {
 
     async function loadClient() {
         try {
-            const res = await fetchWithAuth(`/api/clients/${params.id}/`)
+            const res = await fetchWithAuth(`/api/customers/${params.id}/`)
             if (res.ok) {
                 const data = await res.json()
                 setClient(data)
@@ -84,7 +84,7 @@ export default function EditClientPage() {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setSaving(true)
         try {
-            const res = await fetchWithAuth(`/api/clients/${params.id}/`, {
+            const res = await fetchWithAuth(`/api/customers/${params.id}/`, {
                 method: "PATCH",
                 body: JSON.stringify(values),
             })

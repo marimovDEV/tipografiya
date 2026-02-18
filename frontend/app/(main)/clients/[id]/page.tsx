@@ -52,7 +52,7 @@ export default function ClientDetailPage() {
     const fetchData = async () => {
         try {
             const [clientRes, ordersRes, transRes] = await Promise.all([
-                fetchWithAuth(`/api/clients/${id}/`),
+                fetchWithAuth(`/api/customers/${id}/`),
                 fetchWithAuth(`/api/orders/?client=${id}`),
                 fetchWithAuth(`/api/transactions/?client=${id}`)
             ]);
@@ -81,7 +81,7 @@ export default function ClientDetailPage() {
     const handleAddPayment = async () => {
         if (!paymentData.amount) return toast.error("Summani kiriting");
         try {
-            const res = await fetchWithAuth(`/api/clients/${id}/add_payment/`, {
+            const res = await fetchWithAuth(`/api/customers/${id}/add_payment/`, {
                 method: "POST",
                 body: JSON.stringify(paymentData)
             });
@@ -98,7 +98,7 @@ export default function ClientDetailPage() {
 
     const handleUpdateClient = async () => {
         try {
-            const res = await fetchWithAuth(`/api/clients/${id}/`, {
+            const res = await fetchWithAuth(`/api/customers/${id}/`, {
                 method: "PATCH",
                 body: JSON.stringify(editData)
             });
@@ -115,7 +115,7 @@ export default function ClientDetailPage() {
     const handleDeleteClient = async () => {
         if (!confirm("Haqiqatan ham bu mijozni o'chirmoqchimisiz? (Arxivlanadi)")) return;
         try {
-            const res = await fetchWithAuth(`/api/clients/${id}/`, { method: "DELETE" });
+            const res = await fetchWithAuth(`/api/customers/${id}/`, { method: "DELETE" });
             if (res.status === 204) {
                 toast.success("Mijoz o'chirildi");
                 router.push("/clients");
